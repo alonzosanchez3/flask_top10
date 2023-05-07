@@ -15,8 +15,9 @@ db.init_app(app)
 Bootstrap5(app)
 
 class EditForm(FlaskForm):
-    rating = DecimalField('Edit Rating', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    rating = DecimalField('Your Rating out of 10', validators=[DataRequired()])
+    review = StringField('Your Review', validators=[DataRequired()])
+    submit = SubmitField('Done')
 
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
