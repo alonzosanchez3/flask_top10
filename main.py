@@ -35,10 +35,17 @@ def home():
     movies = db.session.execute(db.select(Movie).order_by(Movie.title)).scalars()
     return render_template("index.html", movies = movies)
 
-@app.route('/edit', methods=["POST", "GET"])
+@app.route('/edit', methods=["GET", "POST"])
 def edit():
     edit_form = EditForm()
-    return render_template('edit.html', form=edit_form)
+    movie_id = request.args.get('id')
+    movie = db.get_or_404(Movie, movie_id)
+    if edit_form.validate_on_submit():
+        movie.rating = edit_form.rating.data
+        movie.review = edit_form.review.data
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('edit.html', form=edit_form, movie=movie)
 
 
 
