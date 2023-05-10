@@ -19,6 +19,10 @@ class EditForm(FlaskForm):
     review = StringField('Your Review', validators=[DataRequired()])
     submit = SubmitField('Done')
 
+class AddForm(FlaskForm):
+    title = StringField('Movie Title', validators=[DataRequired()])
+    submit = SubmitField('Search')
+
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True, nullable=False)
@@ -54,6 +58,11 @@ def delete():
     db.session.delete(movie)
     db.session.commit()
     return redirect(url_for('home'))
+
+@app.route('/add')
+def add():
+    form = AddForm()
+    return render_template('add.html', form=form)
 
 
 
