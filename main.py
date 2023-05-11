@@ -4,7 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, DecimalField
 from wtforms.validators import DataRequired
+from dotenv import load_dotenv
 import requests
+import os
+
+load_dotenv()
+
+url= "https://api.themoviedb.org/3/search/movie"
 
 
 db = SQLAlchemy()
@@ -59,9 +65,13 @@ def delete():
     db.session.commit()
     return redirect(url_for('home'))
 
-@app.route('/add')
+@app.route('/add', methods=['GET', 'POST'])
 def add():
     form = AddForm()
+    if form.validate_on_submit():
+        response = requests.get(url, params={"api_key": os.getenv("API_KEY"), "query":form.title.data})
+        data = response.json()["results"]
+        return render_template('select.html', options=data)
     return render_template('add.html', form=form)
 
 
