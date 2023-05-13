@@ -10,7 +10,8 @@ import os
 
 load_dotenv()
 
-url= "https://api.themoviedb.org/3/search/movie"
+movies_url= "https://api.themoviedb.org/3/search/movie"
+movie_url = "https://api.themoviedb.org/3/movie"
 
 
 db = SQLAlchemy()
@@ -69,12 +70,17 @@ def delete():
 def add():
     form = AddForm()
     if form.validate_on_submit():
-        response = requests.get(url, params={"api_key": os.getenv("API_KEY"), "query":form.title.data})
+        response = requests.get(movies_url, params={"api_key": os.getenv("API_KEY"), "query":form.title.data})
         data = response.json()["results"]
         return render_template('select.html', options=data)
     return render_template('add.html', form=form)
 
-
+@app.route('/find')
+def find():
+    movie_api_id = request.args.get('id')
+    if movie_api_id:
+        movie_api_url = f"{movie_url}/{movie_api_id}"
+        response = requests.get(movie_api_url, params={"api_key": os.getenv("API_KEY"), "language": 'en-US'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=9000)
