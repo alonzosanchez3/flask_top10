@@ -33,12 +33,15 @@ class AddForm(FlaskForm):
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True, nullable=False)
-    year = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.String, nullable=False)
-    rating = db.Column(db.Float, nullable=False)
-    ranking = db.Column(db.Integer, nullable=False)
-    review = db.Column(db.String, nullable=False)
-    img_url = db.Column(db.String, nullable=False)
+    year = db.Column(db.Integer)
+    description = db.Column(db.String)
+    rating = db.Column(db.Float, nullable=True)
+    ranking = db.Column(db.Integer)
+    review = db.Column(db.String)
+    img_url = db.Column(db.String)
+
+with app.app_context():
+    db.create_all()
 
 
 @app.route("/")
@@ -81,6 +84,17 @@ def find():
     if movie_api_id:
         movie_api_url = f"{movie_url}/{movie_api_id}"
         response = requests.get(movie_api_url, params={"api_key": os.getenv("API_KEY"), "language": 'en-US'})
+        data = response.json()
+        print(data['poster_path'])
+        new_movie = Movie(
+            title=data['title'],
+            year=data["release_date"].split("-")[0],
+            img_url=f"https://image.tmdb.org/t/p/w500{data['poster_path']}",
+            description=data['overview']
+        )
+        db.session.add(new_movie)
+        db.session.commit()
+        return redirect(url_for('edit', id=new_movie.id))
 
 if __name__ == '__main__':
     app.run(debug=True, port=9000)
