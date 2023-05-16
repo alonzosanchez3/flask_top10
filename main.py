@@ -46,8 +46,12 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    movies = db.session.execute(db.select(Movie).order_by(Movie.title)).scalars()
-    return render_template("index.html", movies = movies)
+    movies = db.session.execute(db.select(Movie).order_by(Movie.rating)).scalars()
+    all_movies = movies.all()
+    for i in range(len(all_movies)):
+        all_movies[i].ranking = len(all_movies) - i
+    db.session.commit()
+    return render_template("index.html", movies = all_movies)
 
 @app.route('/edit', methods=["GET", "POST"])
 def edit():
